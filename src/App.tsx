@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react'
+import { BrowserRouter, Route } from 'react-router-dom'
 
-function App() {
+import './App.css'
+import Nav from './components/Nav'
+import Home from './pages/Home'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import config from '../src/config'
+
+const App = () => {
+  const [name, setName] = useState('')
+
+  useEffect(() => {
+    (
+      async () => {
+        try {
+          const response = await fetch(config.apiUrl.user, {
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include'
+          })
+
+          const content = await response.json()
+          console.log('----------Home content', content)
+          setName(content.name)
+        } catch (error) {
+          console.log('----------Home user error', error)
+          return null
+        }
+      }
+    )()
+  })
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+        <Nav name={name} setName={setName} />
+        <main className="form-signin">
+            <Route path="/" exact component={() => <Home name={name} />} />
+            <Route path="/login" component={() => <Login name={name} setName={setName} />} />
+            <Route path="/register" component={Register} />
+        </main>
+      </BrowserRouter>
     </div>
   );
 }
 
-export default App;
+export default App
